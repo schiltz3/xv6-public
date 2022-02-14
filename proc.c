@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "stat.h"
 
 struct {
   struct spinlock lock;
@@ -531,4 +532,30 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+// Kill the process with the given pid.
+// Process won't exit until it returns
+// to user space (see trap in trap.c).
+int
+getfilenumber(int pid)
+{
+  struct proc *p;
+  int fCount = 0;
+  int fd;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      // Loop through all files
+      for(fd = 0; fd < NOFILE; fd++){
+        if(ptable.proc->ofile[fd]){
+          fCount++;
+        }
+      }
+    release(&ptable.lock);
+    return fCount;
+    }
+  }
+  return -1;
 }
