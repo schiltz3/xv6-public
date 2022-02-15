@@ -557,5 +557,6 @@ getfilenumber(int pid)
     return fCount;
     }
   }
+  release(&ptable.lock);
   return -1;
 }
